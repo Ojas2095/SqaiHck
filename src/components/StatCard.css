@@ -1,0 +1,125 @@
+.stat-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-base);
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+}
+
+.stat-card:hover {
+  border-color: var(--border-color-hover);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.stat-icon-wrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon-wrapper.saffron {
+  background: rgba(255, 107, 53, 0.12);
+  color: var(--saffron);
+}
+
+.stat-icon-wrapper.gold {
+  background: rgba(244, 196, 48, 0.12);
+  color: var(--gold);
+}
+
+.stat-icon-wrapper.sage {
+  background: rgba(74, 157, 110, 0.12);
+  color: var(--sage);
+}
+
+.stat-icon-wrapper.lotus {
+  background: rgba(233, 30, 140, 0.12);
+  color: var(--lotus);
+}
+
+.stat-icon-wrapper.sky {
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--sky);
+}
+
+.stat-trend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.stat-trend.positive {
+  background: var(--low-bg);
+  color: var(--low);
+}
+
+.stat-trend.negative {
+  background: var(--critical-bg);
+  color: var(--critical);
+}
+
+.stat-value {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.stat-label {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.stat-trend-label {
+  font-size: 0.6875rem;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+}
+
+.stat-glow {
+  position: absolute;
+  bottom: -40px;
+  right: -40px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.stat-glow.saffron { background: var(--saffron); }
+.stat-glow.gold { background: var(--gold); }
+.stat-glow.sage { background: var(--sage); }
+.stat-glow.lotus { background: var(--lotus); }
+.stat-glow.sky { background: var(--sky); }

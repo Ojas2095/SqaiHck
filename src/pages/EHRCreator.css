@@ -1,0 +1,339 @@
+/* ── EHR Creator ──────────────────────────── */
+.ehr-page {
+  max-width: 1400px;
+}
+
+.ehr-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.text-saffron { color: var(--saffron); }
+.text-sage { color: var(--sage); }
+.mt-20 { margin-top: 20px; }
+
+/* Language Grid */
+.lang-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.lang-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-glass);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-family: var(--font-body);
+}
+
+.lang-btn:hover {
+  border-color: var(--border-color-hover);
+  background: var(--bg-glass-hover);
+}
+
+.lang-btn.active {
+  border-color: var(--saffron);
+  background: rgba(255, 107, 53, 0.08);
+}
+
+.lang-native {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.lang-label {
+  font-size: 0.625rem;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Voice Recorder */
+.voice-recorder-card {
+  padding: 40px 24px;
+}
+
+.recorder-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+/* Wave Visualization */
+.wave-container {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 40px;
+}
+
+.wave-bar {
+  width: 3px;
+  border-radius: 2px;
+  background: var(--saffron);
+  transition: height 0.15s ease;
+  opacity: 0.4;
+}
+
+.wave-bar.active {
+  opacity: 1;
+  background: linear-gradient(to top, var(--saffron), var(--gold));
+}
+
+/* Mic Button */
+.mic-button {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: var(--gradient-saffron);
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  position: relative;
+  box-shadow: 0 8px 24px rgba(255, 107, 53, 0.3);
+}
+
+.mic-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 32px rgba(255, 107, 53, 0.4);
+}
+
+.mic-button.recording {
+  background: var(--critical);
+  animation: mic-pulse 2s ease-in-out infinite;
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3);
+}
+
+.recorder-status {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+}
+
+.recording-timer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--critical-bg);
+  border-radius: var(--radius-full);
+  color: var(--critical);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: var(--font-heading);
+}
+
+/* Transcription */
+.transcription-text {
+  padding: 16px;
+  background: var(--bg-glass);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  font-size: 1rem;
+  line-height: 2;
+  margin-bottom: 16px;
+  direction: ltr;
+}
+
+.ner-highlight {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.entity-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.entity-tag {
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+/* EHR Form Panel */
+.ehr-form-panel .glass-card {
+  position: sticky;
+  top: calc(var(--topbar-height) + 24px);
+}
+
+.ehr-section {
+  margin-bottom: 4px;
+}
+
+.ehr-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.ehr-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.ehr-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ehr-field.full-width {
+  grid-column: 1 / -1;
+  margin-bottom: 8px;
+}
+
+.ehr-field label {
+  font-size: 0.6875rem;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.ehr-field-value {
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  padding: 8px 12px;
+  background: var(--bg-glass);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+}
+
+.ehr-field-value.highlight {
+  border-color: rgba(255, 107, 53, 0.3);
+  background: rgba(255, 107, 53, 0.05);
+  color: var(--saffron);
+  font-weight: 500;
+}
+
+/* Symptoms Tags */
+.ehr-symptoms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.symptom-tag {
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--critical);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+.symptom-tag.sage {
+  background: rgba(74, 157, 110, 0.08);
+  color: var(--sage);
+  border-color: rgba(74, 157, 110, 0.15);
+}
+
+/* Vitals Grid */
+.vitals-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.vital-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  background: var(--bg-glass);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+}
+
+.vital-label {
+  font-size: 0.5625rem;
+  color: var(--text-tertiary);
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.vital-value {
+  font-family: var(--font-heading);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Diagnosis Box */
+.diagnosis-box {
+  padding: 16px;
+  background: rgba(74, 157, 110, 0.06);
+  border: 1px solid rgba(74, 157, 110, 0.2);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.diagnosis-text {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--sage);
+}
+
+.diagnosis-confidence {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  background: rgba(74, 157, 110, 0.12);
+  border-radius: var(--radius-full);
+  color: var(--sage);
+}
+
+/* Actions */
+.ehr-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.ehr-actions .btn {
+  flex: 1;
+  justify-content: center;
+}
+
+@media (max-width: 1024px) {
+  .ehr-layout {
+    grid-template-columns: 1fr;
+  }
+  .vitals-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .lang-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

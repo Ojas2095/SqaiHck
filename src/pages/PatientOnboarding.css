@@ -1,0 +1,603 @@
+/* ============================================
+   Patient Onboarding — Styles
+   White background / Green & Black theme
+   ============================================ */
+
+/* ── Container ────────────────────────────── */
+.onboarding-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 620px;
+  margin: 0 auto;
+  width: 100%;
+  padding-bottom: 40px;
+}
+
+/* ── Progress Bar ─────────────────────────── */
+.progress-bar-wrapper {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.progress-bar-track {
+  flex: 1;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+  border-radius: 999px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+/* ── Step Indicators ──────────────────────── */
+.step-indicators {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  margin-bottom: 32px;
+  width: 100%;
+}
+
+.si-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.4;
+  transition: all 0.3s ease;
+}
+
+.si-item.active {
+  opacity: 1;
+}
+
+.si-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.si-item.active .si-circle {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.si-item.current .si-circle {
+  background: #16a34a;
+  color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.15);
+}
+
+.si-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.si-item.active .si-label {
+  color: #374151;
+}
+
+.si-item.current .si-label {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+/* ── Card ─────────────────────────────────── */
+.onboarding-card {
+  background: #ffffff;
+  border: 1px solid #e2e8e4;
+  border-radius: 20px;
+  padding: 40px 36px;
+  width: 100%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.step-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.step-icon-wrapper {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+  color: #166534;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.step-content h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #111827;
+}
+
+.step-subtitle {
+  margin-bottom: 28px;
+  font-size: 0.9375rem;
+  color: #6b7280 !important;
+  max-width: 400px;
+}
+
+/* ── Language Grid ────────────────────────── */
+.language-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 28px;
+}
+
+.lang-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: #fafbfa;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.lang-btn:hover {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+
+.lang-btn.selected {
+  border-color: #16a34a;
+  background: #f0fdf4;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.08);
+}
+
+.lang-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lang-native {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.lang-english {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+.lang-check {
+  color: #16a34a;
+  flex-shrink: 0;
+}
+
+/* ── Form Styles ──────────────────────────── */
+.form-row {
+  display: flex;
+  gap: 14px;
+  width: 100%;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.patient-input, .patient-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  background: #fafbfa;
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 0.9375rem;
+  color: #111827;
+  transition: all 0.2s ease;
+}
+
+.patient-input::placeholder, .patient-textarea::placeholder {
+  color: #9ca3af;
+}
+
+.patient-input:focus, .patient-textarea:focus {
+  outline: none;
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.08);
+  background: #ffffff;
+}
+
+select.patient-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+/* ── Symptoms & Mic ───────────────────────── */
+.symptoms-input-wrapper {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.patient-textarea {
+  resize: vertical;
+  min-height: 130px;
+  line-height: 1.6;
+}
+
+.mic-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  justify-content: center;
+}
+
+.mic-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #16a34a;
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+}
+
+.mic-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 18px rgba(22, 163, 74, 0.35);
+}
+
+.mic-btn.recording {
+  background: #dc2626;
+  box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5);
+  animation: mic-pulse-ring 1.5s infinite;
+}
+
+.mic-label {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.recording-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #dc2626;
+}
+
+.rec-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #dc2626;
+  animation: blink 1s infinite;
+}
+
+/* ── Step Actions ─────────────────────────── */
+.step-actions {
+  width: 100%;
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.step-actions.two-btn {
+  justify-content: space-between;
+}
+
+.btn-next, .btn-finish {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: var(--font-body);
+}
+
+.btn-next {
+  background: #111827;
+  color: white;
+}
+
+.btn-next:hover:not(:disabled) {
+  background: #000000;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-next:disabled, .btn-finish:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-finish {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  color: white;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+}
+
+.btn-finish:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(22, 163, 74, 0.35);
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 20px;
+  border-radius: 12px;
+  border: 1.5px solid #d1d5db;
+  background: #ffffff;
+  color: #374151;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  font-family: var(--font-body);
+}
+
+.btn-back:hover {
+  border-color: #9ca3af;
+  background: #f9fafb;
+}
+
+/* ── Review Card ──────────────────────────── */
+.review-card {
+  width: 100%;
+  background: #fafbfa;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.review-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px 0;
+}
+
+.review-row.review-symptoms-row {
+  flex-direction: column;
+  gap: 6px;
+}
+
+.review-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.review-value {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #111827;
+  text-align: right;
+}
+
+.review-symptoms-text {
+  font-size: 0.875rem;
+  color: #374151 !important;
+  line-height: 1.6;
+  background: #ffffff;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.review-divider {
+  height: 1px;
+  background: #e5e7eb;
+}
+
+/* ── Success Screen ───────────────────────── */
+.success-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: #ffffff;
+  border: 1px solid #e2e8e4;
+  border-radius: 20px;
+  padding: 48px 36px;
+  width: 100%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  margin-top: 40px;
+}
+
+.success-icon-wrapper {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+  color: #16a34a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.success-card h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.success-message {
+  color: #6b7280 !important;
+  font-size: 0.9375rem;
+  max-width: 380px;
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+
+.success-summary {
+  width: 100%;
+  background: #fafbfa;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 28px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.summary-row:last-child {
+  border-bottom: none;
+}
+
+.summary-label {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.summary-value {
+  font-size: 0.875rem;
+  color: #111827;
+  font-weight: 600;
+  text-align: right;
+  max-width: 250px;
+}
+
+.btn-start-over {
+  padding: 14px 28px;
+  background: #111827;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: var(--font-body);
+}
+
+.btn-start-over:hover {
+  background: #000;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ── Animations ───────────────────────────── */
+@keyframes mic-pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5); }
+  70% { box-shadow: 0 0 0 16px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ── Responsive ───────────────────────────── */
+@media (max-width: 640px) {
+  .onboarding-card {
+    padding: 28px 20px;
+    border-radius: 16px;
+  }
+
+  .language-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .step-indicators {
+    gap: 16px;
+  }
+
+  .si-label {
+    font-size: 0.6rem;
+  }
+
+  .step-actions.two-btn {
+    flex-direction: column-reverse;
+  }
+
+  .btn-back {
+    width: 100%;
+  }
+}
