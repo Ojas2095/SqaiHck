@@ -1,4 +1,4 @@
-# Logs
+﻿# Logs
 logs
 *.log
 npm-debug.log*
@@ -57,5 +57,8 @@ ayush_new/
 fixed_new/
 dev-dist/
 
-# Skip raw datasets
+
+
+
+
 backend/Ayurveda Dataset/
