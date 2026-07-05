@@ -22,3 +22,40 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Python / AI / Backend
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+env.bak/
+venv.bak/
+backend/env/
+backend/venv/
+
+# Databases
+*.db
+*.sqlite3
+chroma_db/
+backend/chroma_db/
+
+# ML Models
+models/
+*.bin
+*.safetensors
+*.h5
+*.pb
+
+# Logs
+backend/*.log
+ayush_new/
+fixed_new/
+dev-dist/
+
+# Skip raw datasets
+backend/Ayurveda Dataset/

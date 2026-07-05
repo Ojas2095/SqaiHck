@@ -72,6 +72,11 @@ export default function TopBar() {
             type="text"
             className="search-input"
             placeholder="Search patients, reports, alerts..."
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                alert(`Search for "${e.target.value}" will be implemented in v2.0`);
+              }
+            }}
           />
           <kbd className="search-shortcut">⌘K</kbd>
         </div>

@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AYUSH AI — AHMIS Decision Support</title>
+<style>
+  :root{
+    --bg: #0a0f0d;
+    --panel: #0f1a14;
+    --panel-2: #0a1410;
+    --border: #1a3a2a;
+    --text: #e8f5ed;
+    --muted: #6a9f85;
+    --accent: #2ecc71;
+    --accent-dark: #1a9c54;
+    --accent-soft: rgba(46, 204, 113, 0.12);
+    --accent-gradient: linear-gradient(135deg, #2ecc71 0%, #1a9c54 50%, #0f7a3f 100%);
+    --warn: #f1c40f;
+    --danger: #e74c3c;
+    --font-ui: 'Segoe UI', system-ui, sans-serif;
+    --font-mono: 'Consolas', 'SFMono-Regular', monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font-ui);background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
+  .sidebar{width:230px;background:var(--panel-2);border-right:1px solid var(--border);padding:22px 14px;display:flex;flex-direction:column}
+  .logo{font-size:19px;font-weight:700;background:var(--accent-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:0 0 4px 8px;letter-spacing:.3px}
+  .logo span{-webkit-text-fill-color:var(--text);color:var(--text)}
+  .tagline{font-size:11px;color:var(--muted);margin:0 0 26px 8px}
+  .nav-item{padding:11px 13px;border-radius:8px;cursor:pointer;margin-bottom:3px;color:var(--muted);font-size:14px;transition:.15s}
+  .nav-item:hover{background:var(--accent-soft);color:var(--text)}
+  .nav-item.active{background:var(--accent-soft);color:var(--accent);border-left:3px solid var(--accent)}
+  .sidebar-foot{margin-top:auto;font-size:11px;color:var(--muted);padding:8px}
+  .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+  .header{padding:18px 30px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+  .header h1{font-size:19px;font-weight:600;background:var(--accent-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .header p{font-size:12.5px;color:var(--muted)}
+  .content{flex:1;padding:24px 30px;overflow-y:auto}
+  .view{display:none} .view.active{display:block}
+  .grid{display:grid;gap:16px}
+  .grid-4{grid-template-columns:repeat(4,1fr)} .grid-2{grid-template-columns:1fr 1fr}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px}
+  .stat{padding:18px}
+  .stat .num{font-size:26px;font-weight:700;background:var(--accent-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .stat .label{font-size:12px;color:var(--muted);margin-top:4px}
+  h3{font-size:14px;color:var(--text);margin-bottom:14px;font-weight:600}
+  h3 .tag{font-size:10.5px;color:var(--muted);font-weight:400;margin-left:6px}
+  label{display:block;font-size:12px;color:var(--muted);margin:12px 0 5px}
+  input,textarea,select{width:100%;background:var(--panel-2);border:1px solid var(--border);border-radius:7px;
+    padding:9px 11px;color:var(--text);font-family:var(--font-ui);font-size:13.5px}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+  textarea{resize:vertical;min-height:70px}
+  button{background:var(--accent-gradient);color:#fff;border:none;border-radius:7px;padding:10px 18px;
+    font-weight:600;font-size:13.5px;cursor:pointer;margin-top:14px;transition:all .2s}
+  button:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(46,204,113,0.3)}
+  button.secondary{background:transparent;border:1px solid var(--border);color:var(--text)}
+  button.secondary:hover{background:var(--accent-soft);border-color:var(--accent);box-shadow:none;transform:none}
+  button.danger{background:var(--danger)}
+  .row{display:flex;gap:10px}
+  .badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+  .badge.high{background:rgba(231,76,60,.18);color:var(--danger)}
+  .badge.medium{background:rgba(241,196,15,.18);color:var(--warn)}
+  .badge.low{background:rgba(46,204,113,.18);color:var(--accent)}
+  .alert-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+  .alert-row:last-child{border-bottom:none}
+  .evidence-card{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;font-size:12.5px}
+  .evidence-card .src{color:var(--muted);font-size:11px;margin-top:6px}
+  pre.mono{white-space:pre-wrap;font-family:var(--font-mono);font-size:12.5px;line-height:1.55;background:var(--panel-2);
+    border:1px solid var(--border);border-radius:8px;padding:14px;color:#b8e6c8}
+  .kv{font-size:12.5px;color:var(--muted);margin-bottom:4px}
+  .kv b{color:var(--text);font-weight:600}
+  #toast{position:fixed;bottom:24px;right:24px;background:var(--panel);border:1px solid var(--accent);
+    padding:12px 18px;border-radius:8px;font-size:13px;display:none;box-shadow:0 6px 24px rgba(0,0,0,.4)}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="logo">AYUSH<span>AI</span></div>
+  <div class="tagline">AHMIS decision support</div>
+  <div class="nav-item active" data-view="dashboard">Dashboard</div>
+  <div class="nav-item" data-view="ehr">Voice EHR</div>
+  <div class="nav-item" data-view="treatment">Treatment Plan</div>
+  <div class="nav-item" data-view="outbreak">Outbreak Watch</div>
+  <div class="nav-item" data-view="evidence">Evidence Search</div>
+  <div class="sidebar-foot">Ministry of AYUSH · Problem Statement 3</div>
+</div>
+
+<div class="main">
+  <div class="header">
+    <div><h1 id="header-title">Dashboard</h1><p id="header-sub">Population &amp; system overview</p></div>
+    <div id="model-pill" class="kv"></div>
+  </div>
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="view active" id="view-dashboard">
+      <div class="grid grid-4" style="margin-bottom:16px">
+        <div class="panel stat"><div class="num" id="s-patients">–</div><div class="label">Patients on record</div></div>
+        <div class="panel stat"><div class="num" id="s-ehr">–</div><div class="label">EHR visits logged</div></div>
+        <div class="panel stat"><div class="num" id="s-treatments">–</div><div class="label">Treatment plans issued</div></div>
+        <div class="panel stat"><div class="num" id="s-alerts">–</div><div class="label">Active outbreak alerts</div></div>
+      </div>
+      <div class="grid grid-2">
+        <div class="panel">
+          <h3>Recent outbreak alerts<span class="tag">anomaly + geospatial clustering</span></h3>
+          <div id="dash-alerts"></div>
+        </div>
+        <div class="panel">
+          <h3>Knowledge base &amp; engines</h3>
+          <div class="kv">Corpus records: <b id="kb-records">–</b></div>
+          <div class="kv">Diseases indexed: <b id="kb-diseases">–</b></div>
+          <div class="kv">Herbs indexed: <b id="kb-herbs">–</b></div>
+          <div class="kv">Retrieval backend: <b id="kb-rag">–</b></div>
+          <div class="kv">Top recommended herbs so far: <b id="kb-top-herbs">–</b></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VOICE EHR -->
+    <div class="view" id="view-ehr">
+      <div class="grid grid-2">
+        <div class="panel">
+          <h3>Create EHR<span class="tag">voice or typed, multilingual</span></h3>
+          <label>Patient ID (leave blank to auto-generate)</label>
+          <input id="ehr-pid" placeholder="PAT-0001">
+          <label>Language</label>
+          <select id="ehr-lang">
+            <option value="auto" selected>Auto-detect (recommended for voice)</option>
+            <option value="en">English</option>
+            <option value="hi">Hindi</option>
+          </select>
+          <label>Clinical note (type, or record audio below)</label>
+          <textarea id="ehr-text" placeholder="Patient has fever and joint pain, Vata imbalance..."></textarea>
+
+          <label>Speak into your microphone</label>
+          <div class="row" style="align-items:center">
+            <button type="button" class="secondary" id="mic-btn">🎤 Start recording</button>
+            <span id="mic-status" class="kv" style="margin:0"></span>
+          </div>
+          <audio id="mic-preview" controls style="width:100%;margin-top:8px;display:none"></audio>
+
+          <label>...or upload a pre-recorded file</label>
+          <div class="row">
+            <input type="file" id="ehr-audio" accept="audio/*" style="padding:6px">
+          </div>
+          <button class="secondary" onclick="transcribe()">Transcribe audio</button>
+          <button onclick="createEhr()">Save EHR record</button>
+        </div>
+        <div class="panel">
+          <h3>Extracted result</h3>
+          <div id="ehr-result" class="kv">Nothing yet — save a record to see extracted symptoms, diagnosis, and Prakriti.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TREATMENT -->
+    <div class="view" id="view-treatment">
+      <div class="panel" style="margin-bottom:16px">
+        <h3>Generate treatment plan<span class="tag">hybrid recommender + RAG</span></h3>
+        <div class="row" style="align-items:flex-end">
+          <div style="flex:1"><label>Patient ID</label><input id="tr-pid" placeholder="PAT-0001"></div>
+          <button onclick="getTreatment()">Generate plan</button>
+        </div>
+      </div>
+      <div id="treatment-result"></div>
+    </div>
+
+    <!-- OUTBREAK -->
+    <div class="view" id="view-outbreak">
+      <div class="panel">
+        <h3>Active anomalies<span class="tag">IsolationForest/z-score + DBSCAN + linear forecast</span></h3>
+        <button class="secondary" onclick="loadOutbreaks()">Refresh</button>
+        <div id="outbreak-list" style="margin-top:14px"></div>
+      </div>
+    </div>
+
+    <!-- EVIDENCE -->
+    <div class="view" id="view-evidence">
+      <div class="panel" style="margin-bottom:16px">
+        <h3>Search the knowledge corpus directly</h3>
+        <div class="row" style="align-items:flex-end">
+          <div style="flex:1"><label>Disease / condition</label><input id="ev-disease" placeholder="Diabetes"></div>
+          <div style="flex:1"><label>Herb (optional)</label><input id="ev-herb" placeholder="Guduchi"></div>
+          <button onclick="searchEvidence()">Search</button>
+        </div>
+      </div>
+      <div id="evidence-result"></div>
+    </div>
+
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// GLOBAL FUNCTIONS — accessible from onclick="" attributes
+// ============================================================
+
+const API_BASE = '';
+let currentPatientId = null;
+
+// ---- toast notification ----
+function toast(msg, isError){
+  const t = document.getElementById('toast');
+  t.textContent = msg; 
+  t.style.borderColor = isError ? 'var(--danger)' : 'var(--accent)';
+  t.style.display = 'block';
+  setTimeout(()=> t.style.display='none', 3500);
+}
+
+function badge(sev){ return `<span class="badge ${sev.toLowerCase()}">${sev}</span>`; }
+
+// ---- MIC RECORDING ----
+let mediaRecorder = null;
+let recordedChunks = [];
+let recordedBlob = null;
+let micStream = null;
+
+function toggleMic(){
+  const btn = document.getElementById('mic-btn');
+  const status = document.getElementById('mic-status');
+
+  if(mediaRecorder && mediaRecorder.state === 'recording'){
+    mediaRecorder.stop();
+    return;
+  }
+
+  navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(stream => {
+      micStream = stream;
+      recordedChunks = [];
+      recordedBlob = null;
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '';
+      mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+
+      mediaRecorder.ondataavailable = (e) => { if(e.data && e.data.size > 0) recordedChunks.push(e.data); };
+
+      mediaRecorder.onstop = () => {
+        recordedBlob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+        const preview = document.getElementById('mic-preview');
+        preview.src = URL.createObjectURL(recordedBlob);
+        preview.style.display = 'block';
+        stream.getTracks().forEach(t => t.stop());
+        btn.textContent = '🎤 Start recording';
+        status.textContent = 'Recording captured — click "Transcribe audio" to send it in.';
+      };
+
+      mediaRecorder.start();
+      btn.textContent = '⏹ Stop recording';
+      status.textContent = 'Recording... speak now.';
+    })
+    .catch(e => {
+      toast('Microphone access denied: ' + e.message, true);
+    });
+}
+
+// ---- TRANSCRIBE ----
+async function transcribe(){
+  const fd = new FormData();
+
+  if(recordedBlob){
+    const ext = (recordedBlob.type.includes('ogg')) ? 'ogg' : 'webm';
+    fd.append('audio', recordedBlob, `mic-recording.${ext}`);
+  }else{
+    const file = document.getElementById('ehr-audio').files[0];
+    if(!file){ toast('Record with the mic or choose an audio file first', true); return; }
+    fd.append('audio', file);
+  }
+
+  const langSelect = document.getElementById('ehr-lang');
+  fd.append('language', langSelect.value);
+  
+  try {
+    const res = await fetch(API_BASE + '/api/transcribe', { method:'POST', body: fd });
+    const d = await res.json();
+    if(d.error){ toast(d.error, true); return; }
+    document.getElementById('ehr-text').value = d.text;
+
+    if(langSelect.value === 'auto' && d.language){
+      const detected = d.language.toLowerCase();
+      if(detected === 'hi' || detected === 'en'){
+        langSelect.value = detected;
+      }
+    }
+    toast(`Transcribed with ${d.engine || 'faster-whisper'} (detected: ${d.language})`);
+  } catch(e) {
+    toast('Transcription failed: ' + e.message, true);
+  }
+}
+
+// ---- CREATE EHR ----
+async function createEhr(){
+  const body = {
+    patient_id: document.getElementById('ehr-pid').value || null,
+    voice_text: document.getElementById('ehr-text').value,
+    language: document.getElementById('ehr-lang').value
+  };
+  if(!body.voice_text){ toast('Enter or transcribe a note first', true); return; }
+  
+  try {
+    const res = await fetch(API_BASE + '/api/ehr', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)
+    });
+    const d = await res.json();
+    currentPatientId = d.patient_id;
+    document.getElementById('ehr-result').innerHTML = `
+      <div class="kv">Patient ID: <b>${d.patient_id}</b> (use this in the Treatment Plan tab)</div>
+      <div class="kv">Diagnosis: <b>${d.diagnosis}</b> <span style="color:var(--muted)">(${d.diagnosis_source})</span></div>
+      <div class="kv">Symptoms: <b>${d.symptoms}</b></div>
+      <div class="kv">Prakriti: <b>${d.prakriti}</b></div>
+      <div class="kv">Translated text: <b>${d.translated_text}</b></div>
+      <div class="kv">Extraction confidence: <b>${d.confidence_score}</b></div>`;
+    document.getElementById('tr-pid').value = d.patient_id;
+    toast('EHR saved for ' + d.patient_id);
+  } catch(e) {
+    toast('Failed to save EHR: ' + e.message, true);
+  }
+}
+
+// ---- GET TREATMENT ----
+async function getTreatment(){
+  const pid = document.getElementById('tr-pid').value;
+  if(!pid){ toast('Enter a patient ID', true); return; }
+  
+  try {
+    const res = await fetch(API_BASE + '/api/treatment', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({patient_id: pid})
+    });
+    if(res.status === 404){ toast('No EHR found for that patient — create one first', true); return; }
+    const t = await res.json();
+    document.getElementById('treatment-result').innerHTML = `
+      <div class="grid grid-2">
+        <div class="panel">
+          <h3>Plan for ${t.patient_id}<span class="tag">${t.generation_method}</span></h3>
+          <div class="kv">Diagnosis: <b>${t.diagnosis}</b> &nbsp; Prakriti: <b>${t.prakriti}</b></div>
+          <div class="kv">Herbs: <b>${t.herbs}</b></div>
+          <div class="kv">Diet: <b>${t.diet}</b></div>
+          <div class="kv">Yoga: <b>${t.yoga}</b></div>
+          <div class="kv">Lifestyle / contraindications: <b>${t.lifestyle}</b></div>
+          <div class="kv">Confidence score: <b>${t.confidence_score}</b> (retrieval strength + cluster outcome rate)</div>
+          <div class="kv">Similar-patient cluster outcome rate: <b>${t.cluster_outcome_rate}</b></div>
+          <div class="kv">Retrieval relevance: <b>${t.retrieval_score}</b></div>
+          <div class="row" style="margin-top:14px">
+            <button onclick="sendFeedback('${t.treatment_id}', true)">Approve</button>
+            <button class="secondary" onclick="sendFeedback('${t.treatment_id}', false)">Reject</button>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Explanation</h3>
+          <pre class="mono">${t.llm_response || 'No explanation generated.'}</pre>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:16px">
+        <h3>Supporting evidence<span class="tag">what the recommendation was grounded in</span></h3>
+        ${(t.evidence || []).map(e => `
+          <div class="evidence-card">
+            <div>${(e.text || '').replace(/\\n/g,'<br>')}</div>
+            <div class="src">source: ${e.source} · relevance ${e.relevance_score} (${e.confidence})</div>
+          </div>`).join('') || '<div class="kv">No closely matching evidence retrieved.</div>'}
+      </div>`;
+  } catch(e) {
+    toast('Failed to get treatment: ' + e.message, true);
+  }
+}
+
+// ---- SEND FEEDBACK ----
+async function sendFeedback(treatmentId, approved){
+  try {
+    await fetch(API_BASE + '/api/feedback', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({treatment_id: treatmentId, approved, score: approved ? 1.0 : 0.0})
+    });
+    toast(approved ? 'Approved — herb weights reinforced for this diagnosis' : 'Rejected — herb weights penalised for this diagnosis');
+  } catch(e) {
+    toast('Feedback failed: ' + e.message, true);
+  }
+}
+
+// ---- LOAD OUTBREAKS ----
+async function loadOutbreaks(){
+  try {
+    const res = await fetch(API_BASE + '/api/outbreak/detect');
+    const d = await res.json();
+    document.getElementById('outbreak-list').innerHTML = (d.alerts || []).length ? d.alerts.map(a => `
+      <div class="evidence-card">
+        <div style="display:flex;justify-content:space-between">
+          <b>${a.district} — ${a.disease}</b> ${badge(a.severity)}
+        </div>
+        <div class="kv">Cases: <b>${a.cases}</b> vs baseline avg <b>${a.baseline_avg}</b> (7d rolling avg ${a.rolling_avg_7d})</div>
+        <div class="kv">Anomaly score: <b>${a.anomaly_score}</b> · Date: ${a.date}</div>
+        <div class="kv">Regional cluster: <b>${a.regional_cluster ? 'Yes — ' + (a.cluster_districts || []).join(', ') : 'No, isolated'}</b></div>
+        <div class="kv">7-day forecast: <b>${(a.forecast || {}).trend || 'N/A'}</b>${a.forecast && a.forecast.projected_cases_day7 !== null && a.forecast.projected_cases_day7 !== undefined ? ' → ~' + a.forecast.projected_cases_day7 + ' cases/day' : ''}</div>
+      </div>`).join('') : '<div class="kv">No anomalies detected right now.</div>';
+  } catch(e) {
+    toast('Failed to load outbreaks: ' + e.message, true);
+  }
+}
+
+// ---- SEARCH EVIDENCE ----
+async function searchEvidence(){
+  const disease = document.getElementById('ev-disease').value;
+  const herb = document.getElementById('ev-herb').value;
+  if(!disease){ toast('Enter a disease/condition', true); return; }
+  
+  try {
+    const res = await fetch(API_BASE + '/api/evidence', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({disease, herb})
+    });
+    const results = await res.json();
+    document.getElementById('evidence-result').innerHTML = (results || []).length ? results.map(e => `
+      <div class="evidence-card">
+        <div>${(e.text || '').replace(/\\n/g,'<br>')}</div>
+        <div class="src">source: ${e.source} · relevance ${e.relevance_score} (${e.confidence})</div>
+      </div>`).join('') : '<div class="panel kv">No matching records.</div>';
+  } catch(e) {
+    toast('Search failed: ' + e.message, true);
+  }
+}
+
+// ---- LOAD DASHBOARD ----
+async function loadDashboard(){
+  try{
+    const res = await fetch(API_BASE + '/api/dashboard');
+    const d = await res.json();
+    document.getElementById('s-patients').textContent = d.total_patients || 0;
+    document.getElementById('s-ehr').textContent = d.total_ehr || 0;
+    document.getElementById('s-treatments').textContent = d.total_treatments || 0;
+    document.getElementById('s-alerts').textContent = d.active_alerts || 0;
+    document.getElementById('kb-records').textContent = (d.knowledge_base?.records || 0).toLocaleString();
+    document.getElementById('kb-diseases').textContent = d.knowledge_base?.diseases || 0;
+    document.getElementById('kb-herbs').textContent = d.knowledge_base?.herbs || 0;
+    document.getElementById('kb-rag').textContent = d.rag_status + ` (${(d.corpus_size || 0).toLocaleString()} chunks)`;
+    document.getElementById('kb-top-herbs').textContent = (d.top_herbs || []).map(h=>`${h[0]} (${h[1]})`).join(', ') || '—';
+    document.getElementById('model-pill').textContent =
+      `RAG: ${d.models?.rag_backend || 'N/A'} · LLM: ${d.models?.llm_loaded ? 'loaded' : 'template fallback'} · Speech: ${d.models?.speech_faster_whisper ? 'on' : 'off'}`;
+
+    const box = document.getElementById('dash-alerts');
+    box.innerHTML = (d.recent_alerts || []).length ? d.recent_alerts.map(a => `
+      <div class="alert-row">
+        <span>${a.district} — ${a.disease} ${a.regional_cluster ? '<span class="kv" style="color:var(--warn)">(regional)</span>':''}</span>
+        <span>${badge(a.severity)} ${a.cases} cases</span>
+      </div>`).join('') : '<div class="kv">No active anomalies.</div>';
+  }catch(e){ toast('Could not load dashboard: '+e, true); }
+}
+
+// ---- NAVIGATION ----
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      item.classList.add('active');
+      const viewId = 'view-' + item.dataset.view;
+      const viewEl = document.getElementById(viewId);
+      if(viewEl) viewEl.classList.add('active');
+      
+      const titles = {
+        dashboard:['Dashboard','Population & system overview'],
+        ehr:['Voice EHR','Create structured records from voice or text, in English or Hindi'],
+        treatment:['Treatment Plan','Personalised, evidence-grounded AYUSH recommendations'],
+        outbreak:['Outbreak Watch','Early warning: anomaly detection, regional clustering, short-term forecast'],
+        evidence:['Evidence Search','Query the underlying knowledge corpus directly']
+      };
+      document.getElementById('header-title').textContent = titles[item.dataset.view]?.[0] || 'Dashboard';
+      document.getElementById('header-sub').textContent = titles[item.dataset.view]?.[1] || '';
+      
+      if(item.dataset.view === 'dashboard') loadDashboard();
+      if(item.dataset.view === 'outbreak') loadOutbreaks();
+    });
+  });
+
+  // ---- MIC BUTTON EVENT ----
+  document.getElementById('mic-btn').addEventListener('click', toggleMic);
+
+  // ---- INITIAL LOAD ----
+  loadDashboard();
+});
+
+</script>
+</body>
+</html>

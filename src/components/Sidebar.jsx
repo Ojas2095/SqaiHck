@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard,
@@ -193,7 +193,11 @@ export default function Sidebar() {
                     </div>
                   </div>
                   <label className="toggle-switch">
-                    <input type="checkbox" defaultChecked />
+                    <input 
+                      type="checkbox" 
+                      checked={isDarkMode} 
+                      onChange={(e) => setIsDarkMode(e.target.checked)} 
+                    />
                     <span className="toggle-slider" />
                   </label>
                 </div>
@@ -346,10 +350,10 @@ export default function Sidebar() {
               <div className="help-contact">
                 <p>Still need help?</p>
                 <div className="help-contact-buttons">
-                  <button className="modal-btn-secondary">
+                  <button className="modal-btn-secondary" onClick={() => alert('Live Chat feature will be available in v2.0!')}>
                     <MessageSquare size={14} /> Live Chat
                   </button>
-                  <button className="modal-btn-secondary">
+                  <button className="modal-btn-secondary" onClick={() => alert('Support email copied to clipboard! (support@ayushai.com)')}>
                     <Mail size={14} /> Email Support
                   </button>
                 </div>

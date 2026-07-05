@@ -1,0 +1,41 @@
+# ============================================================================
+# AYUSH AI Platform — requirements
+# ============================================================================
+# Core (required)
+fastapi>=0.110
+uvicorn[standard]>=0.29
+pydantic>=2.6
+python-dotenv>=1.0
+pandas>=2.2
+numpy>=1.26
+openpyxl>=3.1
+scikit-learn>=1.4
+python-multipart>=0.0.9
+
+# Speech-to-text (voice EHR). App runs without it (falls back to typed text).
+faster-whisper>=1.0
+
+# RAG: embeddings + vector store. App runs without it (falls back to a
+# built-in TF-IDF retriever over the same corpus, so RAG never silently
+# does nothing).
+sentence-transformers>=2.6
+chromadb>=0.5
+
+# LLM generation. App runs without it (falls back to a retrieval-grounded
+# template generator, so treatment plans are still evidence-based and
+# personalised, never hardcoded).
+transformers>=4.41
+torch>=2.2
+
+# Machine-translation for multilingual voice input. Falls back to the
+# built-in Hindi<->English gazetteer if not installed / no internet.
+sentencepiece>=0.2.0
+sacremoses>=0.1.1
+
+# Outbreak detection / clustering
+xgboost>=2.0
+
+# Optional: Hugging Face BhashaBench-Ayur benchmark (evaluation only, not
+# used for treatment retrieval — see README for why).
+datasets>=2.19
+huggingface_hub>=0.23

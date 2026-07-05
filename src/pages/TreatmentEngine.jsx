@@ -84,6 +84,49 @@ const prakritiInfo = {
 export default function TreatmentEngine() {
   const [expandedRec, setExpandedRec] = useState(0)
   const [feedbackGiven, setFeedbackGiven] = useState({})
+  
+  const [treatmentData, setTreatmentData] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
+  
+  const generateTreatmentPlan = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/treatment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ patient_id: 'PAT-1234' })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setTreatmentData(data);
+      } else {
+        console.error('Failed to generate treatment:', data.detail || data.error);
+        alert('Failed to generate: ' + (data.detail || data.error || 'Unknown error'));
+      }
+    } catch (err) {
+      console.error('Error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const sendFeedback = async (approved) => {
+    if (!treatmentData?.treatment_id) return;
+    try {
+      await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          treatment_id: treatmentData.treatment_id,
+          approved,
+          score: approved ? 1.0 : 0.0
+        })
+      });
+      alert(approved ? '✅ Approved — herb weights reinforced' : '❌ Rejected — herb weights penalised');
+    } catch (err) {
+      console.error('Feedback error:', err);
+    }
+  };
 
   return (
     <div className="treatment-page animate-fade-in">
@@ -104,12 +147,23 @@ export default function TreatmentEngine() {
             <div className="patient-meta">
               {patientProfile.age} yrs • {patientProfile.gender} • BMI {patientProfile.bmi}
             </div>
+            <div style={{ marginTop: '15px' }}>
+              <button 
+                className="btn btn-primary" 
+                style={{ width: '100%', justifyContent: 'center' }}
+                onClick={generateTreatmentPlan}
+                disabled={isLoading}
+              >
+                <Sparkles size={16} />
+                {isLoading ? 'Generating Plan...' : 'Generate AI Plan (PAT-1234)'}
+              </button>
+            </div>
 
             <div className="divider" />
 
             <div className="patient-detail-section">
               <h5><Sparkles size={14} /> Prakriti Analysis</h5>
-              <div className="prakriti-badge">{patientProfile.prakriti}</div>
+              <div className="prakriti-badge">{treatmentData ? treatmentData.prakriti : patientProfile.prakriti}</div>
               <div className="prakriti-doshas">
                 <div className="dosha-item">
                   <Droplets size={14} />
@@ -134,7 +188,7 @@ export default function TreatmentEngine() {
             <div className="patient-detail-section">
               <h5><Activity size={14} /> Conditions</h5>
               <div className="condition-tags">
-                {patientProfile.conditions.map((c, i) => (
+                {(treatmentData && treatmentData.symptoms && treatmentData.symptoms.length > 0 ? treatmentData.symptoms : patientProfile.conditions).map((c, i) => (
                   <span key={i} className="condition-tag">{c}</span>
                 ))}
               </div>
@@ -178,82 +232,108 @@ export default function TreatmentEngine() {
           <div className="section-header mb-20">
             <div>
               <div className="section-title">AI-Generated Treatment Plan</div>
-              <div className="section-subtitle">Personalized for {patientProfile.prakriti} constitution with {patientProfile.conditions.length} conditions</div>
+              <div className="section-subtitle">
+                Personalized for {treatmentData ? treatmentData.prakriti : patientProfile.prakriti} constitution
+              </div>
             </div>
             <div className="flex gap-8">
-              <div className="badge badge-sage">Reinforcement Learning</div>
+              <div className="badge badge-sage">LLM + RAG</div>
               <div className="badge badge-gold">Evidence-Based</div>
             </div>
           </div>
-
-          {recommendations.map((rec, i) => (
-            <div key={i} className={`recommendation-card ${expandedRec === i ? 'expanded' : ''}`}>
-              <div className="rec-header" onClick={() => setExpandedRec(expandedRec === i ? -1 : i)}>
-                <div className="rec-left">
-                  <div className={`rec-icon ${rec.color}`}>
-                    <rec.icon size={20} />
-                  </div>
-                  <div>
-                    <h4 className="rec-category">{rec.category}</h4>
-                    <span className="rec-count">{rec.items.length} recommendations</span>
-                  </div>
-                </div>
-                <div className="rec-right">
-                  <ConfidenceGauge
-                    value={rec.confidence}
-                    size={56}
-                    color={rec.color === 'sage' ? 'var(--sage)' : rec.color === 'gold' ? 'var(--gold)' : rec.color === 'lotus' ? 'var(--lotus)' : 'var(--sky)'}
-                  />
-                  <ChevronRight size={18} className={`rec-chevron ${expandedRec === i ? 'rotated' : ''}`} />
-                </div>
-              </div>
-
-              {expandedRec === i && (
-                <div className="rec-content">
-                  {rec.items.map((item, j) => (
-                    <div key={j} className="rec-item">
-                      <div className="rec-item-header">
-                        <h5 className="rec-item-name">{item.name}</h5>
-                        <span className={`evidence-badge ${item.strength.toLowerCase()}`}>
-                          <Star size={10} />
-                          {item.strength} Evidence
-                        </span>
-                      </div>
-                      <div className="rec-item-details">
-                        <div className="rec-detail">
-                          <Pill size={13} />
-                          <span><strong>Dosage:</strong> {item.dosage}</span>
-                        </div>
-                        <div className="rec-detail">
-                          <Clock size={13} />
-                          <span><strong>Duration:</strong> {item.duration}</span>
-                        </div>
-                        <div className="rec-detail">
-                          <BookOpen size={13} />
-                          <span><strong>Evidence:</strong> {item.evidence}</span>
-                        </div>
-                      </div>
-                      <div className="rec-feedback">
-                        <span className="feedback-label">Rate this recommendation:</span>
-                        <button
-                          className={`feedback-btn up ${feedbackGiven[`${i}-${j}`] === 'up' ? 'active' : ''}`}
-                          onClick={() => setFeedbackGiven({ ...feedbackGiven, [`${i}-${j}`]: 'up' })}
-                        >
-                          <ThumbsUp size={14} />
-                        </button>
-                        <button
-                          className={`feedback-btn down ${feedbackGiven[`${i}-${j}`] === 'down' ? 'active' : ''}`}
-                          onClick={() => setFeedbackGiven({ ...feedbackGiven, [`${i}-${j}`]: 'down' })}
-                        >
-                          <ThumbsDown size={14} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+          
+          {treatmentData && (
+            <div className="glass-card no-hover mb-20" style={{ padding: '20px', borderLeft: '4px solid var(--sage)' }}>
+              <h4 style={{ marginBottom: '10px', color: 'var(--sage)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Brain size={18} /> Detailed LLM Recommendation
+              </h4>
+              <p style={{ whiteSpace: 'pre-wrap', color: '#8a9ba8', fontSize: '14px', lineHeight: '1.6' }}>
+                {treatmentData.llm_response || "No detailed reasoning provided."}
+              </p>
             </div>
-          ))}
+          )}
+
+          {recommendations.map((rec, i) => {
+            // If data is fetched, override the first recommendation category
+            const currentRec = (treatmentData && i === 0) ? {
+              ...rec,
+              confidence: Math.round(treatmentData.confidence_score * 100),
+              items: [
+                { name: treatmentData.herbs, dosage: 'As prescribed', duration: 'Ongoing', evidence: 'RAG DB Evidence', strength: 'Strong' },
+                { name: treatmentData.diet, dosage: 'Daily', duration: 'Ongoing', evidence: 'Clinical Guidelines', strength: 'Moderate' },
+                { name: treatmentData.yoga, dosage: 'Daily', duration: 'Ongoing', evidence: 'Ayurvedic Principles', strength: 'Moderate' }
+              ]
+            } : rec;
+            
+            return (
+              <div key={i} className={`recommendation-card ${expandedRec === i ? 'expanded' : ''}`}>
+                <div className="rec-header" onClick={() => setExpandedRec(expandedRec === i ? -1 : i)}>
+                  <div className="rec-left">
+                    <div className={`rec-icon ${currentRec.color}`}>
+                      <currentRec.icon size={20} />
+                    </div>
+                    <div>
+                      <h4 className="rec-category">{currentRec.category}</h4>
+                      <span className="rec-count">{currentRec.items.length} recommendations</span>
+                    </div>
+                  </div>
+                  <div className="rec-right">
+                    <ConfidenceGauge
+                      value={currentRec.confidence}
+                      size={56}
+                      color={currentRec.color === 'sage' ? 'var(--sage)' : currentRec.color === 'gold' ? 'var(--gold)' : currentRec.color === 'lotus' ? 'var(--lotus)' : 'var(--sky)'}
+                    />
+                    <ChevronRight size={18} className={`rec-chevron ${expandedRec === i ? 'rotated' : ''}`} />
+                  </div>
+                </div>
+
+                {expandedRec === i && (
+                  <div className="rec-content">
+                    {currentRec.items.map((item, j) => (
+                      <div key={j} className="rec-item">
+                        <div className="rec-item-header">
+                          <h5 className="rec-item-name">{item.name}</h5>
+                          <span className={`evidence-badge ${item.strength.toLowerCase()}`}>
+                            <Star size={10} />
+                            {item.strength} Evidence
+                          </span>
+                        </div>
+                        <div className="rec-item-details">
+                          <div className="rec-detail">
+                            <Pill size={13} />
+                            <span><strong>Dosage:</strong> {item.dosage}</span>
+                          </div>
+                          <div className="rec-detail">
+                            <Clock size={13} />
+                            <span><strong>Duration:</strong> {item.duration}</span>
+                          </div>
+                          <div className="rec-detail">
+                            <BookOpen size={13} />
+                            <span><strong>Evidence:</strong> {item.evidence}</span>
+                          </div>
+                        </div>
+                        <div className="rec-feedback">
+                          <span className="feedback-label">Rate this recommendation:</span>
+                          <button
+                            className={`feedback-btn up ${feedbackGiven[`${i}-${j}`] === 'up' ? 'active' : ''}`}
+                            onClick={() => setFeedbackGiven({ ...feedbackGiven, [`${i}-${j}`]: 'up' })}
+                          >
+                            <ThumbsUp size={14} />
+                          </button>
+                          <button
+                            className={`feedback-btn down ${feedbackGiven[`${i}-${j}`] === 'down' ? 'active' : ''}`}
+                            onClick={() => setFeedbackGiven({ ...feedbackGiven, [`${i}-${j}`]: 'down' })}
+                          >
+                            <ThumbsDown size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>

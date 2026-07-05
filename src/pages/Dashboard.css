@@ -279,3 +279,63 @@
   transition: all var(--transition-base);
   flex-shrink: 0;
 }
+
+/* Knowledge Base Status Grid */
+.kb-status-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.kb-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-glass);
+  border: 1px solid var(--border-color);
+}
+
+.kb-icon {
+  color: var(--saffron);
+  flex-shrink: 0;
+}
+
+.kb-label {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  flex: 1;
+}
+
+.kb-value {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: var(--font-heading);
+}
+
+.kb-value.status-on {
+  color: var(--sage);
+}
+
+.kb-value.status-off {
+  color: var(--text-tertiary);
+}
+
+.top-herbs-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-color);
+}
+
+.qa-icon.sky {
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--sky);
+}
+

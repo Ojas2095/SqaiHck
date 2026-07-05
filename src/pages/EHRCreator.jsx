@@ -62,8 +62,44 @@ const ehrFields = {
 export default function EHRCreator() {
   const [isRecording, setIsRecording] = useState(false)
   const [selectedLang, setSelectedLang] = useState('hi')
-  const [showTranscription, setShowTranscription] = useState(true)
+  const [showTranscription, setShowTranscription] = useState(false)
   const [waveAmplitudes, setWaveAmplitudes] = useState(Array(20).fill(8))
+  
+  const [voiceText, setVoiceText] = useState('')
+  const [isProcessing, setIsProcessing] = useState(false)
+  
+  const [ehrData, setEhrData] = useState(null)
+  
+  // Real speech recognition
+  useEffect(() => {
+    let recognition = null;
+    
+    if (isRecording) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = selectedLang === 'hi' ? 'hi-IN' : 'en-US';
+        
+        recognition.onresult = (event) => {
+          let currentTranscript = '';
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            currentTranscript += event.results[i][0].transcript;
+          }
+          setVoiceText(currentTranscript);
+        };
+        
+        recognition.start();
+      }
+    }
+    
+    return () => {
+      if (recognition) {
+        recognition.stop();
+      }
+    }
+  }, [isRecording, selectedLang]);
 
   // Simulate wave animation when recording
   useEffect(() => {
@@ -73,6 +109,43 @@ export default function EHRCreator() {
     }, 150)
     return () => clearInterval(interval)
   }, [isRecording])
+
+  const processEHR = async (text) => {
+    if (!text) return;
+    setIsProcessing(true);
+    setShowTranscription(true);
+    
+    try {
+      const res = await fetch('/api/ehr', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          patient_id: 'PAT-1234',
+          voice_text: text,
+          language: selectedLang
+        })
+      });
+      const data = await res.json();
+      setEhrData(data);
+    } catch (err) {
+      console.error('Failed to process EHR:', err);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleMicClick = () => {
+    if (isRecording) {
+      setIsRecording(false);
+      // Process when stopped
+      processEHR(voiceText || (selectedLang === 'hi' ? 'मरीज को बुखार और जोड़ों में दर्द है' : 'Patient has fever and joint pain'));
+    } else {
+      setIsRecording(true);
+      setVoiceText('');
+      setEhrData(null);
+      setShowTranscription(false);
+    }
+  };
 
   return (
     <div className="ehr-page animate-fade-in">
@@ -126,26 +199,22 @@ export default function EHRCreator() {
               {/* Mic Button */}
               <button
                 className={`mic-button ${isRecording ? 'recording' : ''}`}
-                onClick={() => {
-                  setIsRecording(!isRecording)
-                  if (!isRecording) setShowTranscription(true)
-                }}
+                onClick={handleMicClick}
               >
                 {isRecording ? <MicOff size={28} /> : <Mic size={28} />}
               </button>
 
               <p className="recorder-status">
                 {isRecording ? (
-                  <><span className="pulse-dot critical" style={{ display: 'inline-block', marginRight: 8 }} /> Recording in हिन्दी...</>
+                  <><span className="pulse-dot critical" style={{ display: 'inline-block', marginRight: 8 }} /> Listening in {languages.find(l => l.code === selectedLang)?.name}...</>
                 ) : (
                   'Tap the microphone to start recording'
                 )}
               </p>
 
-              {isRecording && (
-                <div className="recording-timer">
-                  <Clock size={14} />
-                  <span>00:34</span>
+              {voiceText && (
+                <div style={{ marginTop: '20px', fontStyle: 'italic', color: '#8a9ba8' }}>
+                  "{voiceText}"
                 </div>
               )}
             </div>
@@ -157,39 +226,32 @@ export default function EHRCreator() {
               <div className="section-header">
                 <div className="flex items-center gap-8">
                   <FileText size={18} className="text-saffron" />
-                  <span className="section-title">Live Transcription</span>
+                  <span className="section-title">Live Transcription & NER</span>
                 </div>
-                <div className="badge badge-saffron">NER Active</div>
+                <div className="badge badge-saffron">{isProcessing ? 'Processing...' : 'NER Active'}</div>
               </div>
 
-              <div className="transcription-text">
-                {sampleTranscription.map((segment, i) => (
-                  segment.entity ? (
-                    <span
-                      key={i}
-                      className="ner-highlight"
-                      style={{
-                        background: entityColors[segment.entity].bg,
-                        color: entityColors[segment.entity].color,
-                      }}
-                      title={entityColors[segment.entity].label}
-                    >
-                      {segment.text}
-                    </span>
-                  ) : (
-                    <span key={i}>{segment.text}</span>
-                  )
-                ))}
+              <div className="transcription-text" style={{ padding: '15px 0' }}>
+                {ehrData ? ehrData.translated_text || ehrData.raw_text : voiceText || "Processing transcription..."}
               </div>
 
-              {/* Entity Legend */}
-              <div className="entity-legend">
-                {Object.entries(entityColors).map(([key, val]) => (
-                  <span key={key} className="entity-tag" style={{ background: val.bg, color: val.color }}>
-                    {val.label}
-                  </span>
-                ))}
-              </div>
+              {ehrData && ehrData.symptoms && (
+                <div style={{ marginTop: '15px' }}>
+                  <strong>Extracted Entities:</strong>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '10px' }}>
+                    {ehrData.symptoms !== 'unspecified' && ehrData.symptoms.split(',').map((s, i) => (
+                      <span key={`sym-${i}`} className="entity-tag" style={{ background: entityColors.SYMPTOM.bg, color: entityColors.SYMPTOM.color }}>
+                        {s.trim()}
+                      </span>
+                    ))}
+                    {ehrData.prakriti !== 'not assessed' && (
+                      <span className="entity-tag" style={{ background: entityColors.PRAKRITI.bg, color: entityColors.PRAKRITI.color }}>
+                        {ehrData.prakriti}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -216,20 +278,20 @@ export default function EHRCreator() {
               </h4>
               <div className="ehr-fields-grid">
                 <div className="ehr-field">
-                  <label>Full Name</label>
-                  <div className="ehr-field-value">{ehrFields.patientName}</div>
+                  <label>Patient ID</label>
+                  <div className="ehr-field-value">{ehrData ? ehrData.patient_id : '---'}</div>
                 </div>
                 <div className="ehr-field">
-                  <label>Age</label>
-                  <div className="ehr-field-value">{ehrFields.age} years</div>
+                  <label>Visit Date</label>
+                  <div className="ehr-field-value">{ehrData ? ehrData.visit_date : '---'}</div>
                 </div>
                 <div className="ehr-field">
-                  <label>Gender</label>
-                  <div className="ehr-field-value">{ehrFields.gender}</div>
+                  <label>Language</label>
+                  <div className="ehr-field-value">{ehrData ? ehrData.language : '---'}</div>
                 </div>
                 <div className="ehr-field">
                   <label>Prakriti Type</label>
-                  <div className="ehr-field-value highlight">{ehrFields.prakriti}</div>
+                  <div className="ehr-field-value highlight">{ehrData ? ehrData.prakriti : '---'}</div>
                 </div>
               </div>
             </div>
@@ -243,53 +305,16 @@ export default function EHRCreator() {
                 Clinical Assessment
               </h4>
               <div className="ehr-field full-width">
-                <label>Chief Complaint</label>
-                <div className="ehr-field-value">{ehrFields.chiefComplaint}</div>
-              </div>
-              <div className="ehr-field full-width">
-                <label>Duration</label>
-                <div className="ehr-field-value">{ehrFields.duration}</div>
+                <label>Raw Complaint</label>
+                <div className="ehr-field-value">{ehrData ? ehrData.raw_text : '---'}</div>
               </div>
               <div className="ehr-field full-width">
                 <label>Symptoms</label>
                 <div className="ehr-symptoms">
-                  {ehrFields.symptoms.map((s, i) => (
-                    <span key={i} className="symptom-tag">{s}</span>
-                  ))}
+                  {ehrData && ehrData.symptoms !== 'unspecified' ? ehrData.symptoms.split(',').map((s, i) => (
+                    <span key={i} className="symptom-tag">{s.trim()}</span>
+                  )) : <span className="text-gray-500">No symptoms identified</span>}
                 </div>
-              </div>
-            </div>
-
-            <div className="divider" />
-
-            {/* Vitals */}
-            <div className="ehr-section">
-              <h4 className="ehr-section-title">
-                <Heart size={16} />
-                Vitals
-              </h4>
-              <div className="vitals-grid">
-                {Object.entries(ehrFields.vitals).map(([key, val]) => (
-                  <div key={key} className="vital-item">
-                    <span className="vital-label">{key.toUpperCase()}</span>
-                    <span className="vital-value">{val}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="divider" />
-
-            {/* Medications & Diagnosis */}
-            <div className="ehr-section">
-              <h4 className="ehr-section-title">
-                <Pill size={16} />
-                Previous Medications
-              </h4>
-              <div className="ehr-symptoms">
-                {ehrFields.previousMeds.map((m, i) => (
-                  <span key={i} className="symptom-tag sage">{m}</span>
-                ))}
               </div>
             </div>
 
@@ -301,14 +326,14 @@ export default function EHRCreator() {
                 AI-Generated Diagnosis
               </h4>
               <div className="diagnosis-box">
-                <span className="diagnosis-text">{ehrFields.diagnosis}</span>
-                <span className="diagnosis-confidence">Confidence: 89%</span>
+                <span className="diagnosis-text">{ehrData ? ehrData.diagnosis : 'Pending Evaluation'}</span>
+                {ehrData && <span className="diagnosis-confidence">AI Analyzed</span>}
               </div>
             </div>
 
             {/* Actions */}
             <div className="ehr-actions">
-              <button className="btn btn-secondary">
+              <button className="btn btn-secondary" onClick={() => processEHR(voiceText)}>
                 <RefreshCw size={16} />
                 Re-process
               </button>
